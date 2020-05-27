@@ -1,6 +1,5 @@
 const leftMenu = document.querySelector('.left-menu');
 const burger  = document.querySelector('.hamburger');
-// const cardImg =  document.querySelector('.tv-card__img'); 
 const tvShowList =  document.querySelector('.tv-shows__list');
 const modal = document.querySelector('.modal');
 // const cross = document.querySelector('.cross');
@@ -31,28 +30,32 @@ leftMenu.addEventListener('click', (event) => {
 
 
 //Смена img карточек при наведении
-// let src ;
-// cardImg.forEach(element) {
-    // cardImg.addEventListener('mouseover', (event) => {
-    //         const target = event.target;
-    //         img = target.closest('img');
-    //         src = img.getAttribute('src');
-    //         dataBackdrop = img.getAttribute('data-backdrop');
-    //         img.src = dataBackdrop;
+const changeImage = (event) => {
+    //ищем среди tvShowList карточки
+    const card = event.target.closest('.tv-shows__item'); 
+    if(card){
+        //получаем картинку и создаём 3ю переменную для манипуляций
+        const img = card.querySelector('.tv-card__img');
+        const dataBackdrop = img.dataset.backdrop;
+        //используя 3ю переменную меняем src и backdrop
+        if(dataBackdrop) {
+            img.dataset.backdrop = img.src
+            img.src = dataBackdrop;
+        }
+        // 2ОЙ ВАРИАНТ РЕАЛИЗАЦИИ
+        // if(img.dataset.backdrop){
+        //     [img.src, img.dataset.backdrop] = [img.dataset.backdrop, img.src] 
+        // }
+    }     
+};  
+    tvShowList.addEventListener('mouseover', changeImage);
+    tvShowList.addEventListener('mouseout', changeImage);
 
-    //         console.log(target);
-    // });
-    // cardImg.addEventListener('mouseout', (event) => {
-    //         const target = event.target;
-    //         img = target.closest('img');
-    //         img.src = src;
-
-    //         console.log(img.src);        
-    // });
-// }
-
-//открытие модального окна
+//открытие и закрытие модального окна
 tvShowList.addEventListener('click', (event) => {
+    //после открытия и закрытия модального окна скролл летит вверх => исправляем
+    event.preventDefault();
+
     const target = event.target;
     const card = target.closest('.tv-card');
     if(card) {
