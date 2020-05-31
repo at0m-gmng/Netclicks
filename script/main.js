@@ -33,8 +33,11 @@ const DBService = class  {
             throw new Error(`Не удалось получить запрос по адресу ${url}`);
         }
     };
-    getTestData = async () => {
-        return await this.getData('test.json');
+    // getTestData = async () => {
+    //     return await this.getData('test.json');
+    // };
+    getTestData = () => {
+        return this.getData('test.json');
     };
     getTestCard = () => {
         return  this.getData('card.json');
@@ -102,6 +105,12 @@ searchForm.addEventListener('submit', event => {
                 alert('Поле должно быть заполнено');
               }, 150);
             break;
+        // case (value): 
+        //     // tvShows.append(loading);
+        //     if (renderCard) = '' {
+        //         alert('По вашему запросу ничего не найдено');
+        //     }
+        //     break;
         case (value): //  или вывод информации по поиску
             tvShows.append(loading);
             new DBService().getSearchResult(value).then(renderCard);
@@ -168,48 +177,55 @@ const changeImage = (event) => {
 tvShowList.addEventListener('click', (event) => {
     // после открытия и закрытия модального окна скролл летит вверх => исправляем
     event.preventDefault();
-
-
-    const target = event.target;
-    const card = target.closest('.tv-card');
-    if(card) {
-        // прелоадер для медленного интернета
-        loading.classList.add('loading');
-        console.log(loading);
-        new DBService().getTvShow(card.id).then((data) => {
-            // console.log(data);
-            loading.classList.remove('loading');
-            console.log(loading);
-            tvCardImg.src = IMG_URL + data.poster_path;
-            modalTitle.textContent = data.name;
-            // genresList.innerHTML = data.genres.reduce((acc, item) => {
-            //    return `${acc} <li>${item.name}</li>`
-            // }, '');
-            //  ИЛИ
-            genresList.textContent = '';
-            // for (const item of data.genres) {
-            //     genresList.innerHTML += `<li>${item.name}</li>`;
-            // }
-            // ИЛИ
-            data.genres.forEach( item => {
-                genresList.innerHTML += `<li>${item.name}</li>`;
+    
+        const target = event.target;
+        const card = target.closest('.tv-card');
+        if(card) {
+            // прелоадер для медленного интернета
+            loading.classList.add('loading');
+            new DBService().getTvShow(card.id).then((data) => {
+                // console.log(data);
+                loading.classList.remove('loading');
+                tvCardImg.src = IMG_URL + data.poster_path;
+                modalTitle.textContent = data.name;
+                // genresList.innerHTML = data.genres.reduce((acc, item) => {
+                //    return `${acc} <li>${item.name}</li>`
+                // }, '');
+                //  ИЛИ
+                genresList.textContent = '';
+                // for (const item of data.genres) {
+                //     genresList.innerHTML += `<li>${item.name}</li>`;
+                // }
+                // ИЛИ
+                data.genres.forEach( item => {
+                    genresList.innerHTML += `<li>${item.name}</li>`;
+                });
+                rating.textContent = data.vote_average;
+                description.textContent = data.overview;
+                modalLink.href = data.homepage;
+                
+                const backdrop = data.backdrop_path;
+                // console.log(backdrop);       
+                if(backdrop === null){
+                    document.body.style.overflow = '';
+                    modal.classList.add('hide');
+                    // alert('Для данного фильма не существует модального окна');
+                    // console.log('++');
+                } else {
+                    if (!data.poster_path){
+                        tvCardImg.src = IMG_URL + data.backdrop_path;
+                    }
+                    document.body.style.overflow = 'hidden';
+                    modal.classList.remove('hide');
+                    // console.log('--');
+                }
             });
-            rating.textContent = data.vote_average;
-            description.textContent = data.overview;
-            modalLink.href = data.homepage;
-        })
-        .then( () => {
-            document.body.style.overflow = 'hidden';
-            modal.classList.remove('hide');
-        });
 
-    }
+        }
 
 });
 
 modal.addEventListener('click', (event) => {
-    // loading.classList.remove('loading');
-    // console.log(loading);
     const target = event.target;
     if (event.target.closest('.cross') || event.target.classList.contains('modal')) {
         document.body.style.overflow = '';
