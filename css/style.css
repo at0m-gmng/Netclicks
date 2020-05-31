@@ -434,6 +434,8 @@ main {
     display: block;
     padding-top: 7px;
     padding-bottom: 7px;
+    /* делаем бордер чтобы при добавлении js border input не скакал */
+    border: 2px solid #FFF; 
     border-bottom: 2px solid #ccc;
 }
 

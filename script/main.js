@@ -49,7 +49,6 @@ const DBService = class  {
     };
 
 }
-console.log(new DBService().getSearchResult('Няня'));
 
 // создание карточек фильмов
 const renderCard =  (response) => {
@@ -82,7 +81,7 @@ const renderCard =  (response) => {
                 <h4 class="tv-card__head">${title}</h4>
             </a>
         `;
-        loading.remove(); // удаляем блок загрузки чтобы дальше загрузить карточки
+        loading.classList.remove('loading'); // удаляем блок загрузки чтобы дальше загрузить карточки
         tvShowList.insertAdjacentElement('afterbegin', card);
         // или
         // tvShowList.append(card);
@@ -93,17 +92,32 @@ const renderCard =  (response) => {
 searchForm.addEventListener('submit', event => {
     event.preventDefault();
     const value = searchFormInput.value.trim();
-    if(value){
-    tvShows.append(loading);
-    new DBService().getSearchResult(value).then(renderCard);
+
+    switch(value) {
+        case '': // ошибка и главная страница
+            const block = searchFormInput.closest('.search__form-block');
+            block.style.border = '2px solid tomato';
+            setTimeout( () => {
+                block.style.border = '';
+                alert('Поле должно быть заполнено');
+              }, 150);
+            break;
+        case (value): //  или вывод информации по поиску
+            tvShows.append(loading);
+            new DBService().getSearchResult(value).then(renderCard);
+            console.log('++');
+            break;
     }
+// очищаем поле ввода
     searchFormInput.value = '';
 });
 
-// {   
-//     tvShows.append(loading);
-//     new DBService().getTestData().then(renderCard);
-// }
+//Типа главная страница
+{   
+    tvShows.append(loading);
+    new DBService().getTestData().then(renderCard);
+}
+
 //открытие закрытие меню
 burger.addEventListener('click', () => {
     leftMenu.classList.toggle('openMenu');
@@ -152,14 +166,20 @@ const changeImage = (event) => {
 
 //открытие и закрытие модального окна
 tvShowList.addEventListener('click', (event) => {
-    //после открытия и закрытия модального окна скролл летит вверх => исправляем
+    // после открытия и закрытия модального окна скролл летит вверх => исправляем
     event.preventDefault();
+
 
     const target = event.target;
     const card = target.closest('.tv-card');
     if(card) {
+        // прелоадер для медленного интернета
+        loading.classList.add('loading');
+        console.log(loading);
         new DBService().getTvShow(card.id).then((data) => {
-            console.log(data);
+            // console.log(data);
+            loading.classList.remove('loading');
+            console.log(loading);
             tvCardImg.src = IMG_URL + data.poster_path;
             modalTitle.textContent = data.name;
             // genresList.innerHTML = data.genres.reduce((acc, item) => {
@@ -177,16 +197,19 @@ tvShowList.addEventListener('click', (event) => {
             rating.textContent = data.vote_average;
             description.textContent = data.overview;
             modalLink.href = data.homepage;
-
         })
         .then( () => {
             document.body.style.overflow = 'hidden';
             modal.classList.remove('hide');
         });
+
     }
+
 });
 
 modal.addEventListener('click', (event) => {
+    // loading.classList.remove('loading');
+    // console.log(loading);
     const target = event.target;
     if (event.target.closest('.cross') || event.target.classList.contains('modal')) {
         document.body.style.overflow = '';
